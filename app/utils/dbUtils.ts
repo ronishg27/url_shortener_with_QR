@@ -6,7 +6,7 @@ export const getUrlDetails = async (shortId: string) => {
 		if (!entry) {
 			console.log("No URL found for given Short ID.");
 		}
-		console.log("entry: ", entry);
+		// console.log("entry: ", entry);
 		return entry;
 	} catch (error) {
 		console.error("Error fetching the url: ", error);

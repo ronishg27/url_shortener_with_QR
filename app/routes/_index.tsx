@@ -1,4 +1,4 @@
-import { type MetaFunction } from "@remix-run/node";
+import { type MetaFunction, data } from "@remix-run/node";
 import { Form, Link, useActionData } from "@remix-run/react";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
@@ -12,10 +12,11 @@ import {
 	CardHeader,
 	CardTitle,
 } from "~/components/ui/card";
-import { URLInfo } from "~/lib/interface";
+// import { URLInfo } from "~/lib/interface";
 import { generateInfoUrl, generateShortUrlFromShortId } from "~/utils/urlUtils";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Keywords } from "~/utils/constant.js";
+import { URLInfo } from "~/lib/interface";
 
 export const meta: MetaFunction = () => {
 	return [
@@ -81,13 +82,13 @@ export const action = async ({ request }: { request: Request }) => {
 		// console.log(url);
 		const shortUrl = `${hostname}/${shortId}`;
 		const qrCodeSVG = await QRCode.toString(shortUrl, { type: "svg" });
-		const response = await URLModel.create({
+		const createdURL = await URLModel.create({
 			redirectURL: url,
 			shortId,
 			qrCodeSVG,
 		});
 
-		return new Response(JSON.stringify({ url: response }), { status: 200 });
+		return data({ createdURL }, { status: 200 });
 	} catch (error) {
 		if (error instanceof Error) {
 			console.error("Error saving URL:", error.message);
@@ -104,19 +105,28 @@ export const action = async ({ request }: { request: Request }) => {
 export default function Index() {
 	const [isCustomUrl, setIsCustomUrl] = useState(false);
 	const [hostname, setHostname] = useState("");
-
+	const [actionData, setActionData] = useState<URLInfo>();
 	const [loading, setLoading] = useState(false);
 
-	const actionData = useActionData<{ error?: string; url?: URLInfo }>();
+	const dataFromAction = useActionData<{
+		error?: string;
+		createdURL?: { _doc: URLInfo };
+	}>();
+	// console.log("data from action:", dataFromAction);
+	// const dataFromAction = useActionData<typeof action>();
+
+	// console.log("URL: ", actionData.createdURL);
 	useEffect(() => {
 		setHostname(window.location.origin);
 	}, [hostname]);
-
 	useEffect(() => {
-		if (actionData?.url) {
+		setActionData(dataFromAction?.createdURL?._doc);
+		if (actionData) {
 			setLoading(false);
+			// console.log("Action data found");
 		}
-	}, [actionData]);
+		// console.log(actionData);
+	}, [dataFromAction, actionData]);
 
 	return (
 		<div className="min-h-screen bg-slate-300 flex items-center justify-center p-4">
@@ -206,36 +216,33 @@ export default function Index() {
 					</Form>
 				</CardContent>
 				<CardFooter>
-					{actionData?.error && (
-						<p className="text-red-500 text-sm">{actionData.error}</p>
+					{dataFromAction?.error && (
+						<p className="text-red-500 text-sm">{dataFromAction?.error}</p>
 					)}
-					{actionData?.url && (
+					{actionData && (
 						<div className=" flex flex-col gap-[8]">
 							<span className="font-bold">Original URL: </span>
-							{actionData?.url?.redirectURL}
+							{actionData?.redirectURL}
 							<span className="font-bold">Short URL: </span>
 							<span className="underline">
-								<Link to={`/${actionData.url.shortId}`}>
+								<Link to={`/${actionData.shortId}`}>
 									{generateShortUrlFromShortId(
 										hostname,
-										actionData?.url?.shortId as string
+										actionData.shortId as string
 									)}
 								</Link>
 							</span>
 							<span className="font-bold">URL Info: </span>
 							<span className="underline">
-								<Link to={`/info/${actionData.url.shortId}`}>
-									{generateInfoUrl(
-										hostname,
-										actionData?.url?.shortId as string
-									)}
+								<Link to={`/info/${actionData.shortId}`}>
+									{generateInfoUrl(hostname, actionData.shortId as string)}
 								</Link>
 							</span>
 							<span className="font-bold">QR Code:</span>
 							<div
 								className="w-40 mx-auto"
 								dangerouslySetInnerHTML={{
-									__html: actionData.url.qrCodeSVG,
+									__html: actionData.qrCodeSVG,
 								}}
 							/>
 						</div>
