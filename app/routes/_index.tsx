@@ -87,7 +87,7 @@ export const action = async ({ request }: { request: Request }) => {
 			qrCodeSVG,
 		});
 
-		return Response.json({ url: response }, { status: 200 });
+		return new Response(JSON.stringify({ url: response }), { status: 200 });
 	} catch (error) {
 		if (error instanceof Error) {
 			console.error("Error saving URL:", error.message);
