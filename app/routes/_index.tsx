@@ -12,8 +12,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "~/components/ui/card";
-// import { URLInfo } from "~/lib/interface";
-import { generateInfoUrl, generateShortUrlFromShortId } from "~/utils/urlUtils";
+import { generateShortUrlFromShortId } from "~/utils/urlUtils";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Keywords } from "~/utils/constant.js";
 import { URLInfo } from "~/lib/interface";
@@ -112,10 +111,7 @@ export default function Index() {
 		error?: string;
 		createdURL?: { _doc: URLInfo };
 	}>();
-	// console.log("data from action:", dataFromAction);
-	// const dataFromAction = useActionData<typeof action>();
 
-	// console.log("URL: ", actionData.createdURL);
 	useEffect(() => {
 		setHostname(window.location.origin);
 	}, [hostname]);
@@ -123,72 +119,63 @@ export default function Index() {
 		setActionData(dataFromAction?.createdURL?._doc);
 		if (actionData) {
 			setLoading(false);
-			// console.log("Action data found");
 		}
-		// console.log(actionData);
 	}, [dataFromAction, actionData]);
 
 	return (
-		<div className="min-h-screen bg-slate-300 flex items-center justify-center p-4">
-			<Card className="w-full max-w-md bg-slate-200 shadow-lg rounded-lg overflow-hidden">
-				<CardHeader className="bg-primary text-primary-foreground p-6">
-					<CardTitle className="text-2xl font-bold justify">
-						Shorten It URL Shortener
+		<div className="min-h-screen bg-gradient-to-br from-slate-200 to-slate-400 flex items-center justify-center p-4">
+			<Card className="w-full max-w-md bg-white/90 backdrop-blur shadow-xl rounded-lg overflow-hidden transition-all duration-300 hover:shadow-2xl">
+				<CardHeader className="bg-primary text-primary-foreground p-6 border-b">
+					<CardTitle className="text-2xl font-bold text-center">
+						Shorten It
 					</CardTitle>
+					<p className="text-center text-sm opacity-90 mt-2">
+						Create short, memorable links in seconds
+					</p>
 				</CardHeader>
 
-				<CardContent className="mx-auto ">
+				<CardContent className="mx-auto p-6">
 					<Form method="post" className="space-y-6">
-						<div className="flex flex-col mt-10">
-							<label
-								htmlFor="redirectURL"
-								className="text-lg font-semibold mb-1.5 ">
-								Enter a URL to shorten:
+						<div className="flex flex-col">
+							<label htmlFor="redirectURL" className="text-lg font-medium mb-2">
+								Enter your long URL
 							</label>
 							<input
 								type="url"
 								name="redirectURL"
 								id="redirectURL"
-								className="w-full bg-slate-100  py-0.5 rounded-sm px-2  text-gray-900 shadow-sm border-primary ring ring-primary focus:ring-opacity-900"
-								placeholder="https://example.com"
+								className="w-full bg-slate-50 py-2 px-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+								placeholder="https://example.com/your-long-url"
 								required
 							/>
 						</div>
-						{/* Conditional Custom URL Input */}
-						<div
-							style={{ display: isCustomUrl ? "block" : "none" }}
-							className="flex flex-col">
-							<label htmlFor="customId" className="text-lg font-semibold  ">
-								Enter a custom ID:
-							</label>
-							<input
-								type="text"
-								name="customId"
-								id="customId"
-								className="w-full rounded-sm mt-1.5 px-2 py-0.5 bg-slate-100 text-gray-900 shadow-sm border-primary ring ring-primary focus:ring-opacity-50"
-							/>
-						</div>
-						{/* Custom URL Checkbox */}
-						<div className="flex items-center gap-3">
-							<label
-								htmlFor="customUrl"
-								className="text-sm text-gray-600 dark:text-gray-300">
-								Custom URL?
-							</label>
+
+						<div className="flex items-center gap-3 mb-4">
 							<Checkbox
 								onCheckedChange={() => setIsCustomUrl(!isCustomUrl)}
 								name="customUrl"
 								id="customUrl"
 								className="h-5 w-5"
 							/>
-							{/* <input
-								type="checkbox"
-								name="customUrl"
-								id="customUrl"
-								
-							/> */}
+							<label htmlFor="customUrl" className="text-sm font-medium">
+								Use custom URL
+							</label>
 						</div>
-						{/* Error Message (if any) */}
+
+						{isCustomUrl && (
+							<div className="flex flex-col space-y-2">
+								<label htmlFor="customId" className="text-lg font-medium">
+									Custom URL path
+								</label>
+								<input
+									type="text"
+									name="customId"
+									id="customId"
+									className="w-full bg-slate-50 py-2 px-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+									placeholder="my-custom-url"
+								/>
+							</div>
+						)}
 
 						<input
 							type="text"
@@ -199,52 +186,86 @@ export default function Index() {
 							readOnly
 						/>
 
-						{/* Submit Button */}
-						<div className="flex justify-center">
-							<Button
-								type="submit"
-								className="w-full p-3 mx-auto"
-								disabled={loading}
-								onSubmit={(e) => {
-									e.preventDefault();
-									// setIsFetched(true);
-									setLoading(true);
-								}}>
-								Shorten URL
-							</Button>
-						</div>
+						<Button
+							type="submit"
+							className="w-full py-3 text-lg font-semibold transition-all duration-200 hover:scale-[1.02]"
+							disabled={loading}>
+							{loading ? (
+								<span className="flex items-center justify-center gap-2">
+									<svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+										<circle
+											className="opacity-25"
+											cx="12"
+											cy="12"
+											r="10"
+											stroke="currentColor"
+											strokeWidth="4"
+											fill="none"
+										/>
+										<path
+											className="opacity-75"
+											fill="currentColor"
+											d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+										/>
+									</svg>
+									Shortening...
+								</span>
+							) : (
+								"Shorten URL"
+							)}
+						</Button>
 					</Form>
 				</CardContent>
-				<CardFooter>
+
+				<CardFooter className="flex flex-col gap-4 p-6 bg-slate-50">
 					{dataFromAction?.error && (
-						<p className="text-red-500 text-sm">{dataFromAction?.error}</p>
+						<div className="w-full p-3 rounded-lg bg-red-50 border border-red-200 text-red-600">
+							{dataFromAction.error}
+						</div>
 					)}
+
 					{actionData && (
-						<div className=" flex flex-col gap-[8]">
-							<span className="font-bold">Original URL: </span>
-							{actionData?.redirectURL}
-							<span className="font-bold">Short URL: </span>
-							<span className="underline">
-								<Link to={`/${actionData.shortId}`}>
-									{generateShortUrlFromShortId(
-										hostname,
-										actionData.shortId as string
-									)}
-								</Link>
-							</span>
-							<span className="font-bold">URL Info: </span>
-							<span className="underline">
-								<Link to={`/info/${actionData.shortId}`}>
-									{generateInfoUrl(hostname, actionData.shortId as string)}
-								</Link>
-							</span>
-							<span className="font-bold">QR Code:</span>
-							<div
-								className="w-40 mx-auto"
-								dangerouslySetInnerHTML={{
-									__html: actionData.qrCodeSVG,
-								}}
-							/>
+						<div className="w-full space-y-4 bg-green-50 p-4 rounded-lg border border-green-200">
+							<div className="space-y-2">
+								<h3 className="font-semibold text-green-800">
+									URL Successfully Shortened!
+								</h3>
+								<div className="flex flex-col gap-2">
+									<div>
+										<p className="text-sm text-slate-600">Original URL:</p>
+										<p className="text-sm font-medium truncate">
+											{actionData.redirectURL}
+										</p>
+									</div>
+
+									<div>
+										<p className="text-sm text-slate-600">Short URL:</p>
+										<Link
+											to={`/${actionData.shortId}`}
+											className="text-primary hover:underline font-medium break-all">
+											{generateShortUrlFromShortId(
+												hostname,
+												actionData.shortId
+											)}
+										</Link>
+									</div>
+								</div>
+							</div>
+
+							<div className="flex flex-col items-center gap-2">
+								<p className="font-medium">QR Code</p>
+								<div className="w-32 p-2 bg-white rounded-lg shadow-sm">
+									<div
+										dangerouslySetInnerHTML={{ __html: actionData.qrCodeSVG }}
+									/>
+								</div>
+							</div>
+
+							<Link
+								to={`/info/${actionData.shortId}`}
+								className="block text-center text-sm text-primary hover:underline">
+								View Statistics →
+							</Link>
 						</div>
 					)}
 				</CardFooter>

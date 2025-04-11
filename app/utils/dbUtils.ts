@@ -45,7 +45,7 @@ export const deleteOneUrl = async (shortId: string) => {
 		console.log(`Deleted URL: ${shortId}`);
 		return deletedUrl;
 	} catch (error) {
-		console.error("Error deleting URL:", error);
+		console.error("Error deleting URL ::", error);
 		throw error;
 	}
 };

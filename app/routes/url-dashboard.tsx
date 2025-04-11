@@ -2,7 +2,6 @@ import { Form, Link, useLoaderData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import {
 	AlertDialog,
-	AlertDialogAction,
 	AlertDialogCancel,
 	AlertDialogContent,
 	AlertDialogDescription,
@@ -53,78 +52,91 @@ export async function action({ request }: { request: Request }) {
 
 const Dashboard = () => {
 	const loaderData = useLoaderData<URLInfo[]>();
-	// useEffect(() => {
-	// 	// console.log("loader data: ", loaderData?[0]);
-	// }, [loaderData]);
 
 	return (
-		<div className="flex flex-col justify-center">
-			<Card className="sm:w-[785] mx-auto px-3 py-5 md:w-[70vw]">
-				<CardHeader className="mx-auto font-bold">
-					<CardTitle className="text-3xl">Dashboard</CardTitle>
-					<CardDescription>A list of shortened URL.</CardDescription>
+		<div className="min-h-screen bg-gradient-to-br from-slate-200 to-slate-400 p-6">
+			<Card className="max-w-6xl mx-auto bg-white/90 backdrop-blur shadow-xl">
+				<CardHeader className="text-center border-b pb-6">
+					<CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+						URL Dashboard
+					</CardTitle>
+					<CardDescription className="text-lg mt-2">
+						Manage your shortened URLs
+					</CardDescription>
 				</CardHeader>
+
 				{loaderData ? (
 					<>
 						{loaderData.length > 0 ? (
-							<>
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead className="w-[100px]">SN</TableHead>
-											<TableHead>Short ID</TableHead>
-											<TableHead>Original URL</TableHead>
-											<TableHead className="text-right">
-												Number of Clicks
-											</TableHead>
-											<TableHead>Edit</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{loaderData?.map((data, index) => (
-											<TableRow key={data._id}>
-												<TableCell className="font-medium">
-													{index + 1}
-												</TableCell>
-												<TableCell className="underline">
-													<Link to={`/info/${data.shortId}`}>
-														{data.shortId}
-													</Link>
-												</TableCell>
-												<TableCell>{data.redirectURL}</TableCell>
-												<TableCell className="text-right">
-													{data.visitHistory.length}
-												</TableCell>
-												<TableCell>
-													{/* <Button
-											variant={"destructive"}
-											onClick={async () => await handleDelete(data.shortId)}>
-											Delete
-										</Button> */}
-													<AlertDialog>
-														<AlertDialogTrigger asChild>
-															<Button
-																variant={"destructive"}
-																// onClick={async () => await handleDelete(data.shortId)}
-															>
-																Delete
-															</Button>
-														</AlertDialogTrigger>
-														<AlertDialogContent>
-															<AlertDialogHeader>
-																<AlertDialogTitle>
-																	Are you sure want to delete?
-																</AlertDialogTitle>
-																<AlertDialogDescription>
-																	This action cannot be undone. This will
-																	permanently delete your URL details and remove
-																	the data from our servers.
-																</AlertDialogDescription>
-															</AlertDialogHeader>
-															<AlertDialogFooter>
-																<AlertDialogCancel>Cancel</AlertDialogCancel>
-																<AlertDialogAction>
-																	{/* Continue */}
+							<div className="p-6">
+								<div className="rounded-lg border shadow-sm overflow-hidden">
+									<Table>
+										<TableHeader>
+											<TableRow className="bg-slate-50">
+												<TableHead className="w-[80px] font-semibold">
+													No.
+												</TableHead>
+												<TableHead className="font-semibold">
+													Short ID
+												</TableHead>
+												<TableHead className="font-semibold">
+													Original URL
+												</TableHead>
+												<TableHead className="text-right font-semibold">
+													Clicks
+												</TableHead>
+												<TableHead className="w-[100px] text-center font-semibold">
+													Actions
+												</TableHead>
+											</TableRow>
+										</TableHeader>
+										<TableBody>
+											{loaderData?.map((data, index) => (
+												<TableRow
+													key={data._id}
+													className="hover:bg-slate-50/50 transition-colors">
+													<TableCell className="font-medium">
+														{index + 1}
+													</TableCell>
+													<TableCell>
+														<Link
+															to={`/info/${data.shortId}`}
+															className="text-primary hover:underline font-medium">
+															{data.shortId}
+														</Link>
+													</TableCell>
+													<TableCell
+														className="truncate max-w-[300px]"
+														title={data.redirectURL}>
+														{data.redirectURL}
+													</TableCell>
+													<TableCell className="text-right font-medium">
+														{data.visitHistory.length}
+													</TableCell>
+													<TableCell>
+														<AlertDialog>
+															<AlertDialogTrigger asChild>
+																<Button
+																	variant="destructive"
+																	size="sm"
+																	className="w-full">
+																	Delete
+																</Button>
+															</AlertDialogTrigger>
+															<AlertDialogContent className="sm:max-w-[425px]">
+																<AlertDialogHeader>
+																	<AlertDialogTitle className="text-red-600">
+																		Delete URL
+																	</AlertDialogTitle>
+																	<AlertDialogDescription className="text-slate-600">
+																		This will permanently delete this shortened
+																		URL. This action cannot be undone.
+																	</AlertDialogDescription>
+																</AlertDialogHeader>
+																<AlertDialogFooter className="gap-2">
+																	<AlertDialogCancel className="mt-0">
+																		Cancel
+																	</AlertDialogCancel>
 																	<Form method="post">
 																		<input
 																			type="text"
@@ -133,57 +145,74 @@ const Dashboard = () => {
 																			hidden
 																			readOnly
 																		/>
-																		<input type="submit" value="Delete" />
+																		<Button type="submit" variant="destructive">
+																			Delete
+																		</Button>
 																	</Form>
-																</AlertDialogAction>
-															</AlertDialogFooter>
-														</AlertDialogContent>
-													</AlertDialog>
-												</TableCell>
-											</TableRow>
-										))}
-									</TableBody>
-								</Table>
+																</AlertDialogFooter>
+															</AlertDialogContent>
+														</AlertDialog>
+													</TableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+								</div>
 
-								<AlertDialog>
-									<AlertDialogTrigger asChild>
-										<Button variant={"destructive"}>Delete all</Button>
-									</AlertDialogTrigger>
-									<AlertDialogContent>
-										<AlertDialogHeader>
-											<AlertDialogTitle>
-												Are you sure want to delete all?
-											</AlertDialogTitle>
-											<AlertDialogDescription>
-												This action cannot be undone. This will permanently
-												delete all the URL details and remove the data from our
-												servers.
-											</AlertDialogDescription>
-										</AlertDialogHeader>
-										<AlertDialogFooter>
-											<AlertDialogCancel>Cancel</AlertDialogCancel>
-											<AlertDialogAction>
+								<div className="mt-6 flex justify-end">
+									<AlertDialog>
+										<AlertDialogTrigger asChild>
+											<Button variant="destructive" className="px-6">
+												Delete All URLs
+											</Button>
+										</AlertDialogTrigger>
+										<AlertDialogContent>
+											<AlertDialogHeader>
+												<AlertDialogTitle className="text-red-600">
+													Delete All URLs
+												</AlertDialogTitle>
+												<AlertDialogDescription className="text-slate-600">
+													This will permanently delete all your shortened URLs.
+													This action cannot be undone.
+												</AlertDialogDescription>
+											</AlertDialogHeader>
+											<AlertDialogFooter className="gap-2">
+												<AlertDialogCancel className="mt-0">
+													Cancel
+												</AlertDialogCancel>
 												<Form method="post">
 													<input
 														type="text"
 														name="deleteAll"
-														value={"true"}
+														value="true"
 														hidden
 														readOnly
 													/>
-													<input type="submit" value="Delete" />
+													<Button type="submit" variant="destructive">
+														Delete All
+													</Button>
 												</Form>
-											</AlertDialogAction>
-										</AlertDialogFooter>
-									</AlertDialogContent>
-								</AlertDialog>
-							</>
+											</AlertDialogFooter>
+										</AlertDialogContent>
+									</AlertDialog>
+								</div>
+							</div>
 						) : (
-							"No URL found"
+							<div className="p-12 text-center text-slate-600">
+								<p className="text-lg">No URLs found</p>
+								<Link
+									to="/"
+									className="text-primary hover:underline mt-2 inline-block">
+									Create your first shortened URL
+								</Link>
+							</div>
 						)}
 					</>
 				) : (
-					"loading..."
+					<div className="p-12 text-center">
+						<div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+						<p className="text-slate-600 mt-4">Loading...</p>
+					</div>
 				)}
 			</Card>
 		</div>
