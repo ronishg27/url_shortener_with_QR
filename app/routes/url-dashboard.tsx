@@ -27,8 +27,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from "~/components/ui/card";
+import { requireAuth } from "~/utils/auth.server";
 
-export async function loader() {
+export async function loader({ request }: { request: Request }) {
+	await requireAuth(request);
 	const urls = await getAllUrls();
 	// console.log(urls);
 
@@ -38,6 +40,7 @@ export async function loader() {
 }
 
 export async function action({ request }: { request: Request }) {
+	await requireAuth(request);
 	const formData = await request.formData();
 	const shortId = formData.get("shortId") as string;
 	const deleteAll = formData.get("deleteAll") as string;
