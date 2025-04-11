@@ -1,5 +1,5 @@
 import { ActionFunction } from "@remix-run/node";
-import { Form, useSearchParams } from "@remix-run/react";
+import { Form, useSearchParams, useActionData } from "@remix-run/react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 
@@ -10,26 +10,27 @@ export const action: ActionFunction = async ({ request }) => {
 	const redirectTo = formData.get("redirectTo") as string;
 
 	// In a real app, you'd want to use proper authentication
-	const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
-	const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+	const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "ron";
+	const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "20202";
 
 	if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-		console.log("Matched");
+		// console.log("Matched");
 		const credentials = btoa(`${username}:${password}`);
 		const headers = new Headers();
 		headers.set("Location", redirectTo || "/url-dashboard");
 		headers.set(
 			"Set-Cookie",
-			`auth=${credentials}; Path=/; HttpOnly; SameSite=Strict`
+			`auth=${credentials}; Path=/; HttpOnly; SameSite=Strict; Max-Age=86400`
 		);
 		return new Response(null, { status: 302, headers });
 	}
 
-	return new Response("Invalid credentials", { status: 401 });
+	return { error: "Invalid username or password" };
 };
 
 export default function Login() {
 	const [searchParams] = useSearchParams();
+	const actionData = useActionData<{ error?: string }>();
 	const redirectTo = searchParams.get("redirectTo") || "/url-dashboard";
 
 	return (
@@ -39,6 +40,11 @@ export default function Login() {
 					<CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
 				</CardHeader>
 				<CardContent>
+					{actionData?.error && (
+						<div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md">
+							{actionData.error}
+						</div>
+					)}
 					<Form method="post" className="space-y-4">
 						<div>
 							<label
