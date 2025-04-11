@@ -87,7 +87,7 @@ function getBrowserInfo(userAgent: string): string {
 async function getGeolocation(clientIp: string) {
 	if (clientIp == "unknown") clientIp = "0.0.0.0";
 	const resp = await axios.get(
-		`https://ipinfo.io/${clientIp}?token=${process.env.IP_INFO_TOKEN}`
+		`https://ipinfo.io/${clientIp}?token=${process.env.IP_INFO_TOKEN || ""}`
 	);
 	// console.log(resp.data);
 	return resp.data;
